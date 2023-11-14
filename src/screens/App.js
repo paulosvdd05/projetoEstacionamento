@@ -1,15 +1,18 @@
 import React, { Component } from 'react'
-import { View, Text, TouchableNativeFeedback, StyleSheet, TextInput, Dimensions } from 'react-native'
+import { View, Text, TouchableNativeFeedback, StyleSheet, TextInput, Dimensions, FlatList } from 'react-native'
 import EntradaCarro from '../components/EntradaCarro'
 import commonStyles from '../commonStyles'
 import Icon from 'react-native-vector-icons/dist/MaterialCommunityIcons';
+import VagaLista from '../components/VagaLista';
 
 const initialState = {
   vagas: 30,
   valorHora: 1.00,
   carros: [],
   showEntrada: false,
-  placa: ''
+  placa: '',
+  hora: ''
+
 }
 
 const windowWidth = Dimensions.get('window').width;
@@ -21,6 +24,17 @@ export default class App extends Component {
     ...initialState
   }
 
+  preencherVaga = () => {
+    this.setState({ carros: [...this.state.carros, { placa: this.state.placa, hora: this.state.hora }] }, () => {
+      this.setState({ placa: '', hora: '' }, () => console.log(this.state.carros))
+    })
+  }
+
+  renderItem = ({ item, index }) => {
+    return <VagaLista {...item} index={index} />
+  }
+
+
   render = () => {
     return (
       <View style={styles.conatiner}>
@@ -29,28 +43,37 @@ export default class App extends Component {
         </View>
         <View style={styles.main}>
           <View style={styles.entrada}>
-            <View style={{width:windowWidth/2}}>
+            <View style={{ width: windowWidth / 2 }}>
               <Text style={styles.entradaText}>Placa:</Text>
               <TextInput style={styles.input}
                 value={this.state.placa}
                 onChangeText={(placa) => this.setState({ placa })}
+                placeholder='Digite a placa...'
               />
             </View>
-            <View style={{width:windowWidth/6}}>
+            <View style={{ width: windowWidth / 6 }}>
               <Text style={styles.entradaText}>Hora:</Text>
               <TextInput style={styles.input}
-                value={this.state.placa}
-                onChangeText={(placa) => this.setState({ placa })}
+                value={this.state.hora}
+                onChangeText={(hora) => this.setState({ hora })}
+                placeholder='Hora...'
               />
             </View>
-            <TouchableNativeFeedback onPress={() => this.setState({ showEntrada: true })}>
+            <TouchableNativeFeedback onPress={this.preencherVaga}>
               <View style={styles.button}>
                 <Icon name={'car'} size={30} color={commonStyles.colors.secondary} />
               </View>
             </TouchableNativeFeedback>
           </View>
           <View style={styles.lista}>
+            <FlatList style={styles.prodList}
+              //se  a busca estiver vazia ele retorna todos itens ativos em ordem alfabetica, se nao ele filtra pela descrição ou caso a etiqueta seja inserida por completa
+              data={this.state.carros}
+              keyExtractor={item => item.id}
+              renderItem={this.renderItem}
 
+
+            />
           </View>
           <EntradaCarro onCancel={() => this.setState({ showEntrada: false })} isVisible={this.state.showEntrada} />
 
@@ -91,7 +114,7 @@ const styles = StyleSheet.create({
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    width:windowWidth/5
+    width: windowWidth / 5
   },
   input: {
     height: 50,
@@ -101,8 +124,8 @@ const styles = StyleSheet.create({
     elevation: 10,
     flexDirection: 'row',
     alignItems: 'center',
-    flex:1,
-    
+    flex: 1,
+
   },
   entrada: {
     justifyContent: 'space-between',
@@ -115,6 +138,13 @@ const styles = StyleSheet.create({
     marginLeft: 5
   },
   lista: {
-    flex: 8
+    borderRadius: 10,
+    flex: 8,
+    marginVertical: 10,
+    justifyContent: 'space-between',
+    shadowColor: '#171717',
+    elevation: 10,
+    backgroundColor: '#fff',
+    zIndex: -2
   }
 })
