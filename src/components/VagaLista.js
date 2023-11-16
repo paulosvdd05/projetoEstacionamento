@@ -10,12 +10,12 @@ export default props => {
                 <Text style={styles.index}>{props.index + 1}</Text>
             </View>
             <View>
-                <Text style={styles.name}>{props.placa}</Text>
-                <Text style={styles.desc}>{props.hora}</Text>
-
+                <View style={{borderRadius:5, borderWidth:1, padding:3, borderTopWidth:8, borderColor:commonStyles.colors.primary}}>
+                    <Text style={styles.name}>{props.placa}</Text>
+                </View>
             </View>
-            <View style={{ justifyContent: 'flex-start', alignItems: 'flex-end', marginRight: 10, flex:1}}>
-                
+            <View style={{ justifyContent: 'flex-start', alignItems: 'flex-end', marginRight: 10, flex: 1 }}>
+                <Text style={styles.desc}>{props.hora}</Text>
             </View>
 
         </TouchableOpacity>
