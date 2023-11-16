@@ -1,16 +1,18 @@
 import React, { Component } from 'react'
-import { View, Text, TouchableNativeFeedback, StyleSheet, TextInput, Dimensions, FlatList } from 'react-native'
-import EntradaCarro from '../components/EntradaCarro'
+import { View, Text, TouchableNativeFeedback, StyleSheet, TextInput, Dimensions, FlatList, Alert } from 'react-native'
+import SaidaCarro from '../components/SaidaCarro'
 import commonStyles from '../commonStyles'
 import Icon from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 import VagaLista from '../components/VagaLista';
 
 const initialState = {
+  idCarro: 0,
   vagas: 30,
   valorHora: 1.00,
   carros: [],
   showEntrada: false,
   placa: '',
+  placaSaida: '',
   hora: ''
 
 }
@@ -30,8 +32,22 @@ export default class App extends Component {
     })
   }
 
+  delete = (placa) => {
+    this.setState({ placaSaida: placa }, () => this.setState({ showEntrada: true }))
+    // Alert.alert('Excluir', 'Deseja dar saída ao carro?', [
+    //   {
+    //     text: 'Sim',
+    //     onPress: () => this.setState({ carros: this.state.carros.filter(carro => carro.placa !== placa) })
+    //   },
+    //   {
+    //     text: 'Cancelar'
+    //   }
+    // ])
+
+  }
+
   renderItem = ({ item, index }) => {
-    return <VagaLista {...item} index={index} />
+    return <VagaLista {...item} index={index} delete={this.delete} />
   }
 
 
@@ -57,6 +73,7 @@ export default class App extends Component {
                 value={this.state.hora}
                 onChangeText={(hora) => this.setState({ hora })}
                 placeholder='Hora...'
+                keyboardType='numeric'
               />
             </View>
             <TouchableNativeFeedback onPress={this.preencherVaga}>
@@ -69,13 +86,13 @@ export default class App extends Component {
             <FlatList style={styles.prodList}
               //se  a busca estiver vazia ele retorna todos itens ativos em ordem alfabetica, se nao ele filtra pela descrição ou caso a etiqueta seja inserida por completa
               data={this.state.carros}
-              keyExtractor={item => item.id}
+              keyExtractor={item => item.placa}
               renderItem={this.renderItem}
 
 
             />
           </View>
-          <EntradaCarro onCancel={() => this.setState({ showEntrada: false })} isVisible={this.state.showEntrada} />
+          <SaidaCarro onCancel={() => this.setState({ showEntrada: false })} isVisible={this.state.showEntrada} placa={this.state.placaSaida} />
 
         </View>
 
@@ -101,7 +118,7 @@ const styles = StyleSheet.create({
     fontSize: 20
   },
   main: {
-    flex: 11,
+    flex: 14,
     marginHorizontal: 10,
     marginVertical: 10
   },
