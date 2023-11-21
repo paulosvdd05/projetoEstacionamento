@@ -14,6 +14,8 @@ const initialState = {
   showEntrada: false,
   placa: '',
   placaSaida: '',
+  horaSaida: '',
+  minutoSaida: '',
   hora: ''
 
 }
@@ -36,8 +38,8 @@ export default class App extends Component {
     })
   }
 
-  delete = (placa) => {
-    this.setState({ placaSaida: placa }, () => this.setState({ showEntrada: true }))
+  delete = (placa, horaEntrada, minutoEntrada) => {
+    this.setState({ placaSaida: placa, horaSaida: horaEntrada, minutoSaida: minutoEntrada }, () => this.setState({ showEntrada: true }))
     // Alert.alert('Excluir', 'Deseja dar saída ao carro?', [
     //   {
     //     text: 'Sim',
@@ -50,6 +52,19 @@ export default class App extends Component {
 
   }
 
+  saidaVaga = (placa,total) => {
+    Alert.alert('Excluir', `Deseja dar saída ao Carro: ${placa} \n Total a pagar: ${total}`, [
+      {
+        text: 'Sim',
+        onPress: () => this.setState({ carros: this.state.carros.filter(carro => carro.placa !== placa) } ,()=>{
+          this.setState({showEntrada:false})
+        })
+      },
+      {
+        text: 'Cancelar'
+      }
+    ])
+  }
   renderItem = ({ item, index }) => {
     return <VagaLista {...item} index={index} delete={this.delete} />
   }
@@ -65,7 +80,7 @@ export default class App extends Component {
           <View style={styles.entrada}>
             <View style={{ width: windowWidth / 2 }}>
               <Text style={styles.entradaText}>Placa:</Text>
-            
+
               <MaskInput style={styles.input}
                 value={this.state.placa}
                 onChangeText={(masked, unmasked) => this.setState({ placa: masked.toUpperCase() })}
@@ -99,7 +114,7 @@ export default class App extends Component {
 
             />
           </View>
-          <SaidaCarro onCancel={() => this.setState({ showEntrada: false })} isVisible={this.state.showEntrada} placa={this.state.placaSaida} />
+          <SaidaCarro onCancel={() => this.setState({ showEntrada: false })} isVisible={this.state.showEntrada} placa={this.state.placaSaida} horaEntrada={this.state.horaSaida} minutoEntrada={this.state.minutoSaida} saidaVaga={this.saidaVaga} />
 
         </View>
 

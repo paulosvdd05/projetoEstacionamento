@@ -6,6 +6,8 @@ import Icon from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 export default props => {
+    let horaEntrada = props.hora.split(":")[0]
+    let minutoEntrada = props.hora.split(":")[1]
     return (
         <TouchableOpacity style={[styles.produto, { backgroundColor: props.index % 2 == 0 ? "#ffffff" : "#F2F2F2" }]} onPress={() => props.onSelect(props.id_produto)}>
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
@@ -20,7 +22,7 @@ export default props => {
                 <Text style={styles.desc}>Entrada:</Text>
                 <Text style={styles.name}>{props.hora} Hrs</Text>
             </View>
-            <TouchableOpacity onPress={() => props.delete(props.placa)}>
+            <TouchableOpacity onPress={() => props.delete(props.placa, horaEntrada, minutoEntrada)}>
                 <View style={{paddingHorizontal:5, paddingVertical:10, borderRadius:5, backgroundColor:'#f00', marginRight:10}}>
                    <Icon name='exit-to-app' size={22} color='#fff'/>
                 </View>
