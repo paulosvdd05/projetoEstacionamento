@@ -4,6 +4,7 @@ import SaidaCarro from '../components/SaidaCarro'
 import commonStyles from '../commonStyles'
 import Icon from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 import VagaLista from '../components/VagaLista';
+import MaskInput from 'react-native-mask-input'
 
 const initialState = {
   idCarro: 0,
@@ -16,6 +17,9 @@ const initialState = {
   hora: ''
 
 }
+
+const placaMask = [/./, /./, /./, '-', /\d/, /\d/, /\d/, /\d/]
+const horaMask = [/\d/, /\d/, ':', /\d/, /\d/]
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -55,25 +59,28 @@ export default class App extends Component {
     return (
       <View style={styles.conatiner}>
         <View style={styles.navbar}>
-          <Text style={styles.navbarText}>ESTACIONAMENTO</Text>
+          <Text style={styles.navbarText}>Estacionamento</Text>
         </View>
         <View style={styles.main}>
           <View style={styles.entrada}>
             <View style={{ width: windowWidth / 2 }}>
               <Text style={styles.entradaText}>Placa:</Text>
-              <TextInput style={styles.input}
+            
+              <MaskInput style={styles.input}
                 value={this.state.placa}
-                onChangeText={(placa) => this.setState({ placa })}
+                onChangeText={(masked, unmasked) => this.setState({ placa: masked.toUpperCase() })}
                 placeholder='Digite a placa...'
+                mask={placaMask}
               />
             </View>
             <View style={{ width: windowWidth / 6 }}>
               <Text style={styles.entradaText}>Hora:</Text>
-              <TextInput style={styles.input}
+              <MaskInput style={styles.input}
                 value={this.state.hora}
-                onChangeText={(hora) => this.setState({ hora })}
+                onChangeText={(masked, unmasked) => this.setState({ hora: masked })}
                 placeholder='Hora...'
                 keyboardType='numeric'
+                mask={horaMask}
               />
             </View>
             <TouchableNativeFeedback onPress={this.preencherVaga}>

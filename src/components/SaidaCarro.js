@@ -1,10 +1,14 @@
 import React, { Component } from 'react'
-import { View, Text, Modal, TouchableWithoutFeedback, StyleSheet, TextInput } from 'react-native'
+import { View, Text, Modal, TouchableWithoutFeedback, StyleSheet, TextInput, TouchableNativeFeedback } from 'react-native'
 import commonStyles from '../commonStyles'
+import Icon from 'react-native-vector-icons/dist/MaterialCommunityIcons';
+import MaskInput from 'react-native-mask-input'
 
 const initialState = {
     hora: ''
 }
+
+const horaMask = [/\d/, /\d/, ':', /\d/, /\d/]
 
 export default class SaidaCarro extends Component {
 
@@ -26,14 +30,22 @@ export default class SaidaCarro extends Component {
                         <View style={styles.placa}>
                             <Text style={styles.placaText}>{this.props.placa}</Text>
                         </View>
-                        <View style={{marginTop:20}}>
+                        <View style={{ marginTop: 20 }}>
                             <Text style={styles.entradaText}>Hora de Saída:</Text>
-                            <TextInput style={styles.input}
+                            <MaskInput style={styles.input}
                                 value={this.state.hora}
-                                onChangeText={(hora) => this.setState({ hora })}
-                                placeholder='digite a hora de saída...'
+                                onChangeText={(masked, unmasked) => this.setState({ hora: masked })}
+                                placeholder='Digite a hora de saída...'
                                 keyboardType='numeric'
+                                mask={horaMask}
                             />
+                        </View>
+                        <View>
+                            <TouchableNativeFeedback>
+                                <View style={{ backgroundColor: "#f00", borderRadius: 10, padding: 10, marginVertical: 20 }}>
+                                    <Icon name='exit-to-app' size={22} color='#fff' />
+                                </View>
+                            </TouchableNativeFeedback>
                         </View>
                     </View>
                 </View>
@@ -52,7 +64,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.7)',
     },
     container: {
-        flex: 1,
+
         backgroundColor: '#FFF',
     },
     navbar: {
@@ -97,7 +109,7 @@ const styles = StyleSheet.create({
         elevation: 10,
         flexDirection: 'row',
         alignItems: 'center',
-        width:300
+        width: 300
 
     },
 
