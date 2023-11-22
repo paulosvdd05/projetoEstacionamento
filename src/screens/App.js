@@ -59,11 +59,27 @@ export default class App extends Component {
   }
 
   preencherVaga = () => {
-    this.setState({ carros: [...this.state.carros, { placa: this.state.placa, horaEntrada: this.state.horaEntrada }] }, () => {
-      this.setState({ placa: '', horaEntrada: '', numVagasAtual: this.state.carros.length }, async () => {
-        await this.storeData(this.state.carros, 'vagas')
-      })
-    })
+    if (this.state.placa != '' || this.state.horaEntrada != '') {
+      if (this.state.numVagasAtual < this.state.maximoVagas) {
+        if (this.state.carros.filter(carro => carro.placa == this.state.placa).length <= 0) {
+          this.setState({ carros: [...this.state.carros, { placa: this.state.placa, horaEntrada: this.state.horaEntrada }] }, () => {
+            this.setState({ placa: '', horaEntrada: '', numVagasAtual: this.state.carros.length }, async () => {
+              await this.storeData(this.state.carros, 'vagas')
+            })
+          })
+
+        } else {
+          Alert.alert('Atenção', 'Carro já estacionado!')
+        }
+
+      } else {
+        Alert.alert('Atenção', 'Não há vagas disponíveis!')
+      }
+    } else {
+      Alert.alert('Atenção', 'Preencha todos os campos!')
+    }
+
+
   }
 
   delete = (placa, horaEntrada, minutoEntrada) => {
@@ -105,7 +121,7 @@ export default class App extends Component {
       {
         text: 'Sim',
         onPress: () => this.setState({ carros: this.state.carros.filter(carro => carro.placa !== placa) }, () => {
-          this.setState({ showEntrada: false,  numVagasAtual: this.state.carros.length, relatorio: [...this.state.relatorio, { placa: placa, horaEntrada: horaEntrada, horaSaida: horaSaida, total: total }] },
+          this.setState({ showEntrada: false, numVagasAtual: this.state.carros.length, relatorio: [...this.state.relatorio, { placa: placa, horaEntrada: horaEntrada, horaSaida: horaSaida, total: total }] },
             async () => {
               await this.storeData(this.state.relatorio, 'relatorio')
               await this.storeData(this.state.carros, 'vagas')
