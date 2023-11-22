@@ -34,7 +34,7 @@ export default props => {
             </View>
             <TouchableOpacity onPress={() => props.delete(props.placa, horaEntrada, minutoEntrada)}>
                 <View style={{ paddingHorizontal: 5, paddingVertical: 10, borderRadius: 5, backgroundColor: '#f00', marginRight: 10 }}>
-                    <Icon name='exit-to-app' size={22} color='#fff' />
+                    {props.tipo != 'relatorio' ? <Icon name='exit-to-app' size={22} color='#fff' /> : <Icon name='delete' size={22} color='#fff' />}
                 </View>
             </TouchableOpacity>
 

@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { View, Text, TouchableNativeFeedback, StyleSheet, TextInput, Dimensions, FlatList, Alert, TouchableOpacity } from 'react-native'
 import SaidaCarro from '../components/SaidaCarro'
 import Relatorio from '../components/Relatorio'
+import NumeroVagas from '../components/NumeroVagas'
 import commonStyles from '../commonStyles'
 import Icon from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 import VagaLista from '../components/VagaLista';
@@ -20,7 +21,10 @@ const initialState = {
   placaSaida: '',
   horaSaida: '',
   minutoSaida: '',
-  horaEntrada: ''
+  horaEntrada: '',
+  maximoVagas: 0,
+  numVagasAtual: 0,
+  showNumeroVagas: false
 
 }
 
@@ -39,17 +43,24 @@ export default class App extends Component {
   componentDidMount = async () => {
     const carros = await this.getData('vagas')
     const relatorio = await this.getData('relatorio')
+    const maximoVagas = await this.getData('maximoVagas')
     if (carros !== null) {
       this.setState({ carros: carros })
     }
     if (relatorio !== null) {
       this.setState({ relatorio: relatorio })
     }
+    if (maximoVagas !== null) {
+      this.setState({ maximoVagas: maximoVagas })
+    }
+
+    this.state.carros != '' ? this.setState({ numVagasAtual: this.state.carros.length }) : null
+
   }
 
   preencherVaga = () => {
     this.setState({ carros: [...this.state.carros, { placa: this.state.placa, horaEntrada: this.state.horaEntrada }] }, () => {
-      this.setState({ placa: '', horaEntrada: '' }, async () => {
+      this.setState({ placa: '', horaEntrada: '', numVagasAtual: this.state.carros.length }, async () => {
         await this.storeData(this.state.carros, 'vagas')
       })
     })
@@ -94,7 +105,7 @@ export default class App extends Component {
       {
         text: 'Sim',
         onPress: () => this.setState({ carros: this.state.carros.filter(carro => carro.placa !== placa) }, () => {
-          this.setState({ showEntrada: false, relatorio: [...this.state.relatorio, { placa: placa, horaEntrada: horaEntrada, horaSaida: horaSaida, total: total }] },
+          this.setState({ showEntrada: false,  numVagasAtual: this.state.carros.length, relatorio: [...this.state.relatorio, { placa: placa, horaEntrada: horaEntrada, horaSaida: horaSaida, total: total }] },
             async () => {
               await this.storeData(this.state.relatorio, 'relatorio')
               await this.storeData(this.state.carros, 'vagas')
@@ -111,14 +122,24 @@ export default class App extends Component {
     return <VagaLista {...item} index={index} delete={this.delete} />
   }
 
+  setMaxVagas = (numeroVagas) => {
+    this.setState({ maximoVagas: numeroVagas, showNumeroVagas: false }, async () => {
+      await this.storeData(this.state.maximoVagas, 'maximoVagas')
+    })
+  }
+
 
   render = () => {
     return (
       <View style={styles.conatiner}>
         <View style={styles.navbar}>
-          <Text style={{ width: 35 }}></Text>
-          <Text style={styles.navbarText}>Estacionamento</Text>
-          <TouchableOpacity onPress={async () => this.setState({showRelatorio:true})}>
+          <TouchableOpacity onPress={() => this.setState({ showNumeroVagas: true })}>
+            <Text style={{ fontSize: 20, fontWeight: 'bold', color: commonStyles.colors.secondary, marginLeft: 5 }}>{this.state.numVagasAtual}/{this.state.maximoVagas}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={async () => this.setState({ showRelatorio: true })}>
+            <Icon name={'chart-box'} size={30} color={commonStyles.colors.secondary} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={async () => this.setState({ showRelatorio: true })}>
             <Icon style={{ marginRight: 5 }} name={'history'} size={30} color={commonStyles.colors.secondary} />
           </TouchableOpacity>
 
@@ -160,6 +181,7 @@ export default class App extends Component {
             />
           </View>
           <SaidaCarro onCancel={() => this.setState({ showEntrada: false })} isVisible={this.state.showEntrada} placa={this.state.placaSaida} horaEntrada={this.state.horaSaida} minutoEntrada={this.state.minutoSaida} saidaVaga={this.saidaVaga} />
+          <NumeroVagas onCancel={() => this.setState({ showNumeroVagas: false })} isVisible={this.state.showNumeroVagas} setMaxVagas={this.setMaxVagas} />
           <Relatorio onCancel={() => this.setState({ showRelatorio: false })} isVisible={this.state.showRelatorio} />
         </View>
 

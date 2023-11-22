@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { View, Text, Modal, TouchableWithoutFeedback, StyleSheet, TextInput, TouchableNativeFeedback, FlatList, Alert } from 'react-native'
+import { View, Text, Modal, TouchableWithoutFeedback, StyleSheet, TextInput, TouchableNativeFeedback, FlatList } from 'react-native'
 import commonStyles from '../commonStyles'
 import VagaLista from './VagaLista';
 import Icon from 'react-native-vector-icons/dist/MaterialCommunityIcons';
@@ -8,19 +8,19 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const initialState = {
-    relatorio: [],
+    numeroVagas: ''
 }
 
 const horaMask = [/\d/, /\d/, ':', /\d/, /\d/]
 
-export default class Relatorio extends Component {
+export default class NumeroVagas extends Component {
 
     state = {
         ...initialState
     }
 
     renderItem = ({ item, index }) => {
-        return <VagaLista tipo={'relatorio'} delete={this.delete} {...item} index={index} />
+        return <VagaLista tipo={'relatorio'} {...item} index={index} />
     }
 
     storeData = async (value, key) => {
@@ -41,34 +41,6 @@ export default class Relatorio extends Component {
         }
     };
 
-    onShow = async () => {
-        const relatorio = await this.getData('relatorio')
-        if (relatorio !== null) {
-            this.setState({ relatorio: relatorio })
-        }
-    }
-
-    delete = async (placa) => {
-        Alert.alert(
-            'Excluir',
-            `Deseja excluir o carro ${placa}?`,
-            [
-                {
-                    text: 'Não',
-                    onPress: () => console.log('Cancel Pressed'),
-                    style: 'cancel'
-                },
-                {
-                    text: 'Sim', onPress: async () => {
-                        const relatorio = this.state.relatorio.filter(item => item.placa !== placa)
-                        this.setState({ relatorio: relatorio })
-                        await this.storeData(relatorio, 'relatorio')
-                    }
-                }
-            ],
-            { cancelable: false }
-        );
-    }
 
 
 
@@ -80,16 +52,23 @@ export default class Relatorio extends Component {
                 </TouchableWithoutFeedback>
                 <View style={styles.container}>
                     <View style={styles.navbar}>
-                        <Text style={styles.navbarText}>Relatório</Text>
+                        <Text style={styles.navbarText}>Número de Vagas</Text>
                     </View>
-                    <View style={styles.lista}>
-                        <FlatList style={styles.prodList}
-                            //se  a busca estiver vazia ele retorna todos itens ativos em ordem alfabetica, se nao ele filtra pela descrição ou caso a etiqueta seja inserida por completa
-                            data={this.state.relatorio}
-                            keyExtractor={item => item.placa}
-                            renderItem={this.renderItem}
+                    <View style={{justifyContent:'center', alignItems:'center', padding:20}}>
+                        <TextInput
+                            style={styles.input}
+                            value={this.state.numeroVagas}
+                            onChangeText={(vagas) => this.setState({ numeroVagas: vagas })}
+                            placeholder='Número máximo de vagas...'
+                            keyboardType='numeric'
                         />
+                        <TouchableNativeFeedback onPress={()=>this.props.setMaxVagas(this.state.numeroVagas)}>
+                            <View style={{ paddingHorizontal: 20, paddingVertical: 10, borderRadius: 5, backgroundColor: commonStyles.colors.secondary, marginTop: 20 }}>
+                                <Icon name='check-bold' size={22} color='#fff' />
+                            </View>
+                        </TouchableNativeFeedback>
                     </View>
+
                 </View>
 
                 <TouchableWithoutFeedback onPress={this.props.onCancel}>
