@@ -97,7 +97,7 @@ export default class App extends Component {
           this.setState({ showEntrada: false, relatorio: [...this.state.relatorio, { placa: placa, horaEntrada: horaEntrada, horaSaida: horaSaida, total: total }] },
             async () => {
               await this.storeData(this.state.relatorio, 'relatorio')
-              await this.storeData(this.state.carros, 'carros')
+              await this.storeData(this.state.carros, 'vagas')
 
             })
         })
