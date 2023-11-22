@@ -6,25 +6,35 @@ import Icon from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 export default props => {
-    let horaEntrada = props.hora.split(":")[0]
-    let minutoEntrada = props.hora.split(":")[1]
+
+    let horaEntrada = props.horaEntrada.split(":")[0]
+    let minutoEntrada = props.horaEntrada.split(":")[1]
+
+
     return (
         <TouchableOpacity style={[styles.produto, { backgroundColor: props.index % 2 == 0 ? "#ffffff" : "#F2F2F2" }]} onPress={() => props.onSelect(props.id_produto)}>
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 <Text style={styles.index}>{props.index + 1}</Text>
             </View>
-            <View style={{width:windowWidth/3.5}}>
+            <View style={{ width: windowWidth / 3.5 }}>
                 <View style={styles.placa}>
                     <Text style={styles.name}>{props.placa}</Text>
                 </View>
             </View>
             <View style={styles.entrada}>
-                <Text style={styles.desc}>Entrada:</Text>
-                <Text style={styles.name}>{props.hora} Hrs</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center'  }}>
+                    <Text style={styles.desc}>Entrada:</Text>
+                    <Text style={styles.name}>{props.horaEntrada} Hrs</Text>
+                </View>
+
+                {props.tipo == 'relatorio' ? <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Text style={styles.desc}>Saída:</Text>
+                    <Text style={styles.name}>{props.horaSaida} Hrs</Text>
+                </View> : null}
             </View>
             <TouchableOpacity onPress={() => props.delete(props.placa, horaEntrada, minutoEntrada)}>
-                <View style={{paddingHorizontal:5, paddingVertical:10, borderRadius:5, backgroundColor:'#f00', marginRight:10}}>
-                   <Icon name='exit-to-app' size={22} color='#fff'/>
+                <View style={{ paddingHorizontal: 5, paddingVertical: 10, borderRadius: 5, backgroundColor: '#f00', marginRight: 10 }}>
+                    <Icon name='exit-to-app' size={22} color='#fff' />
                 </View>
             </TouchableOpacity>
 
@@ -43,7 +53,7 @@ const styles = StyleSheet.create({
         color: commonStyles.colors.secondary,
         fontSize: 17,
         fontWeight: 'bold',
-        textAlign: 'left'
+        textAlign: 'right',
     },
     index: {
         color: commonStyles.colors.secondary,
@@ -62,9 +72,9 @@ const styles = StyleSheet.create({
         fontSize: 17,
         fontWeight: 'bold',
         textAlign: 'right',
-        alignItems:'flex-start',
-        justifyContent:'flex-start'
-      
+        alignItems: 'flex-start',
+        justifyContent: 'flex-start'
+
 
     },
     valor: {
@@ -78,10 +88,10 @@ const styles = StyleSheet.create({
         textAlign: 'right'
     },
     entrada: {
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
+        justifyContent: 'flex-end',
+        alignItems: 'flex-end',
         marginRight: 10,
-        width: windowWidth / 3.5,
+        width: windowWidth / 3,
         textAlign: 'left'
 
     },
@@ -91,8 +101,8 @@ const styles = StyleSheet.create({
         padding: 3,
         borderTopWidth: 8,
         borderColor: commonStyles.colors.secondary,
-        backgroundColor:commonStyles.colors.primary,
-        justifyContent:'center',
-        alignItems:'center'
+        backgroundColor: commonStyles.colors.primary,
+        justifyContent: 'center',
+        alignItems: 'center'
     }
 })

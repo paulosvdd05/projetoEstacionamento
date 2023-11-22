@@ -27,7 +27,7 @@ export default class SaidaCarro extends Component {
     calculaTotal = () => {
         
         const horaSaida = this.state.hora.split(":")[0] == '' ? 0 : this.state.hora.split(":")[0]
-        const minutoSaida = this.state.hora.split(":")[1] == undefined ? 0 : this.state.hora.split(":")[1]
+        const minutoSaida = this.state.hora.split(":")[1] == undefined ? '00' : this.state.hora.split(":")[1]
         const horaEntrada = this.props.horaEntrada
         const minutoEntrada = this.props.minutoEntrada
         const diferencaHora = horaSaida - horaEntrada

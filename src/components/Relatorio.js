@@ -1,92 +1,79 @@
 import React, { Component } from 'react'
-import { View, Text, Modal, TouchableWithoutFeedback, StyleSheet, TextInput, TouchableNativeFeedback } from 'react-native'
+import { View, Text, Modal, TouchableWithoutFeedback, StyleSheet, TextInput, TouchableNativeFeedback, FlatList } from 'react-native'
 import commonStyles from '../commonStyles'
+import VagaLista from './VagaLista';
 import Icon from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 import MaskInput from 'react-native-mask-input'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const initialState = {
-    hora: '',
-    valorHora: 1,
-    horaEntrada: 0,
-    minutoEntrada: 0,
-    total: 0
+    relatorio: [],
 }
 
 const horaMask = [/\d/, /\d/, ':', /\d/, /\d/]
 
-export default class SaidaCarro extends Component {
+export default class Relatorio extends Component {
 
     state = {
         ...initialState
     }
 
-    onShow = () => {
-
+    renderItem = ({ item, index }) => {
+        return <VagaLista tipo={'relatorio'} {...item} index={index} />
     }
 
-    calculaTotal = () => {
-        
-        const horaSaida = this.state.hora.split(":")[0] == '' ? 0 : this.state.hora.split(":")[0]
-        const minutoSaida = this.state.hora.split(":")[1] == undefined ? 0 : this.state.hora.split(":")[1]
-        const horaEntrada = this.props.horaEntrada
-        const minutoEntrada = this.props.minutoEntrada
-        const diferencaHora = horaSaida - horaEntrada
-        const diferencaMinuto = minutoSaida - minutoEntrada
-        console.log(
-            horaSaida,
-            minutoSaida,
-            horaEntrada,
-            minutoEntrada,
-        );
-        if (diferencaHora !== 0 && horaSaida !== 0 && diferencaHora > 0) {
-            diferencaMinuto > 0 ? this.setState({ total: (this.state.valorHora * diferencaHora) + 1 }) : this.setState({ total: this.state.valorHora * diferencaHora })
-        } else {
-            this.setState({ total: this.state.valorHora })
+    storeData = async (value, key) => {
+        try {
+            const jsonValue = JSON.stringify(value);
+            await AsyncStorage.setItem(key, jsonValue);
+        } catch (e) {
+            // saving error
+        }
+    };
+
+    getData = async (key) => {
+        try {
+            const jsonValue = await AsyncStorage.getItem(key);
+            return jsonValue != null ? JSON.parse(jsonValue) : null;
+        } catch (e) {
+            // error reading value
+        }
+    };
+
+    onShow = async () => {
+        const relatorio = await this.getData('relatorio')
+        if (relatorio !== null) {
+            this.setState({ relatorio: relatorio })
         }
     }
+    
+
 
     render() {
         return (
-            <Modal transparent={true} visible={this.props.isVisible} animationType='fade' onShow={this.calculaTotal} >
+            <Modal transparent={true} visible={this.props.isVisible} animationType='fade' onShow={this.onShow} >
                 <TouchableWithoutFeedback onPress={this.props.onCancel}>
                     <View style={styles.background}></View>
                 </TouchableWithoutFeedback>
                 <View style={styles.container}>
                     <View style={styles.navbar}>
-                        <Text style={styles.navbarText}>Saída</Text>
+                        <Text style={styles.navbarText}>Relatório</Text>
                     </View>
-                    <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 10 }}>
-                        <View style={styles.placa}>
-                            <Text style={styles.placaText}>{this.props.placa}</Text>
-                        </View>
-                        <Text>{this.props.horaEntrada}:{this.props.minutoEntrada}</Text>
-                        <View style={{ marginTop: 20 }}>
-                            <Text style={styles.entradaText}>Hora de Saída:</Text>
-                            <MaskInput style={styles.input}
-                                value={this.state.hora}
-                                onChangeText={(masked, unmasked) => this.setState({ hora: masked }, this.calculaTotal)}
-                                placeholder='Digite a hora de saída...'
-                                keyboardType='numeric'
-                                mask={horaMask}
-                            />
-                        </View>
-                        <View style={{ marginTop: 20 }}>
-                            <Text>Total: {this.state.total}</Text>
-                        </View>
-                        <View>
-                            <TouchableNativeFeedback onPress={() => this.props.saidaVaga(this.props.placa, this.state.total, this.state.hora, `${this.props.horaEntrada}:${this.props.minutoEntrada}`)}>
-                                <View style={{ backgroundColor: "#f00", borderRadius: 10, padding: 10, marginVertical: 20 }}>
-                                    <Icon name='exit-to-app' size={22} color='#fff' />
-                                </View>
-                            </TouchableNativeFeedback>
-                        </View>
+                    <View style={styles.lista}>
+                        <FlatList style={styles.prodList}
+                            //se  a busca estiver vazia ele retorna todos itens ativos em ordem alfabetica, se nao ele filtra pela descrição ou caso a etiqueta seja inserida por completa
+                            data={this.state.relatorio}
+                            keyExtractor={item => item.placa}
+                            renderItem={this.renderItem}
+                        />
                     </View>
                 </View>
 
                 <TouchableWithoutFeedback onPress={this.props.onCancel}>
                     <View style={styles.background}></View>
                 </TouchableWithoutFeedback>
-            </Modal >
+            </Modal>
         )
     }
 }
@@ -145,5 +132,15 @@ const styles = StyleSheet.create({
         width: 300
 
     },
+    lista: {
+        borderRadius: 10,
+        marginVertical: 20,
+        marginHorizontal: 10,
+        justifyContent: 'space-between',
+        shadowColor: '#171717',
+        elevation: 10,
+        backgroundColor: '#fff',
+        zIndex: -2
+    }
 
 })
