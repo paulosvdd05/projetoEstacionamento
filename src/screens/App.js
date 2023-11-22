@@ -1,16 +1,18 @@
 import React, { Component } from 'react'
-import { View, Text, TouchableNativeFeedback, StyleSheet, TextInput, Dimensions, FlatList, Alert } from 'react-native'
+import { View, Text, TouchableNativeFeedback, StyleSheet, TextInput, Dimensions, FlatList, Alert, TouchableOpacity } from 'react-native'
 import SaidaCarro from '../components/SaidaCarro'
 import commonStyles from '../commonStyles'
 import Icon from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 import VagaLista from '../components/VagaLista';
 import MaskInput from 'react-native-mask-input'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const initialState = {
   idCarro: 0,
   vagas: 30,
   valorHora: 1.00,
   carros: [],
+  relatorio: [],
   showEntrada: false,
   placa: '',
   placaSaida: '',
@@ -32,9 +34,22 @@ export default class App extends Component {
     ...initialState
   }
 
+  componentDidMount = async () => {
+    const carros = await this.getData('vagas')
+    const relatorio = await this.getData('relatorio')
+    if (carros !== null) {
+      this.setState({ carros: carros })
+    }
+    if (relatorio !== null) {
+      this.setState({ relatorio: relatorio })
+    }
+  }
+
   preencherVaga = () => {
     this.setState({ carros: [...this.state.carros, { placa: this.state.placa, hora: this.state.hora }] }, () => {
-      this.setState({ placa: '', hora: '' }, () => console.log(this.state.carros))
+      this.setState({ placa: '', hora: '' }, async () => {
+        await this.storeData(this.state.carros, 'vagas')
+      })
     })
   }
 
@@ -52,12 +67,34 @@ export default class App extends Component {
 
   }
 
-  saidaVaga = (placa,total) => {
+  storeData = async (value, key) => {
+    try {
+      const jsonValue = JSON.stringify(value);
+      await AsyncStorage.setItem(key, jsonValue);
+    } catch (e) {
+      // saving error
+    }
+  };
+
+  getData = async (key) => {
+    try {
+      const jsonValue = await AsyncStorage.getItem(key);
+      return jsonValue != null ? JSON.parse(jsonValue) : null;
+    } catch (e) {
+      // error reading value
+    }
+  };
+
+  saidaVaga = (placa, total, horaSaida, horaEntrada) => {
     Alert.alert('Excluir', `Deseja dar saída ao Carro: ${placa} \n Total a pagar: ${total}`, [
       {
         text: 'Sim',
-        onPress: () => this.setState({ carros: this.state.carros.filter(carro => carro.placa !== placa) } ,()=>{
-          this.setState({showEntrada:false})
+        onPress: () => this.setState({ carros: this.state.carros.filter(carro => carro.placa !== placa) }, () => {
+          this.setState({ showEntrada: false, relatorio: [...this.state.relatorio, { placa: placa, horaEntrada: horaEntrada, horaSaida: horaSaida, total: total }] },
+            async () => {
+              await this.storeData(this.state.relatorio, 'relatorio')
+
+            })
         })
       },
       {
@@ -74,7 +111,12 @@ export default class App extends Component {
     return (
       <View style={styles.conatiner}>
         <View style={styles.navbar}>
+          <Text style={{ width: 35 }}></Text>
           <Text style={styles.navbarText}>Estacionamento</Text>
+          <TouchableOpacity onPress={async () => console.log(await this.getData('relatorio'))}>
+            <Icon style={{ marginRight: 5 }} name={'history'} size={30} color={commonStyles.colors.secondary} />
+          </TouchableOpacity>
+
         </View>
         <View style={styles.main}>
           <View style={styles.entrada}>
@@ -131,8 +173,9 @@ const styles = StyleSheet.create({
   navbar: {
     flex: 1,
     backgroundColor: commonStyles.colors.primary,
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    flexDirection: 'row',
   },
   navbarText: {
     color: commonStyles.colors.secondary,
