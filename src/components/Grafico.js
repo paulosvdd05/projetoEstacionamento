@@ -83,17 +83,7 @@ export default class Relatorio extends Component {
                     <View style={styles.background}></View>
                 </TouchableWithoutFeedback>
                 <View style={styles.container}>
-                    <View style={styles.navbar}>
-                        <Text style={styles.navbarText}>Relatório</Text>
-                    </View>
-                    <View style={styles.lista}>
-                        <FlatList style={styles.prodList}
-                            //se  a busca estiver vazia ele retorna todos itens ativos em ordem alfabetica, se nao ele filtra pela descrição ou caso a etiqueta seja inserida por completa
-                            data={this.state.relatorio.reverse()}
-                            keyExtractor={item => item.placa}
-                            renderItem={this.renderItem}
-                        />
-                    </View>
+                    
                 </View>
 
                 <TouchableWithoutFeedback onPress={this.props.onCancel}>

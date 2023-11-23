@@ -22,15 +22,10 @@ export default props => {
                 </View>
             </View>
             <View style={styles.entrada}>
-                <View style={{ flexDirection: 'row', alignItems: 'center'  }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Text style={styles.desc}>Entrada:</Text>
                     <Text style={styles.name}>{props.horaEntrada} Hrs</Text>
                 </View>
-
-                {props.tipo == 'relatorio' ? <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Text style={styles.desc}>Saída:</Text>
-                    <Text style={styles.name}>{props.horaSaida} Hrs</Text>
-                </View> : null}
             </View>
             <TouchableOpacity onPress={() => props.delete(props.placa, horaEntrada, minutoEntrada)}>
                 <View style={{ paddingHorizontal: 5, paddingVertical: 10, borderRadius: 5, backgroundColor: '#f00', marginRight: 10 }}>
