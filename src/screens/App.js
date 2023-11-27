@@ -6,6 +6,7 @@ import NumeroVagas from '../components/NumeroVagas'
 import commonStyles from '../commonStyles'
 import Icon from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 import VagaLista from '../components/VagaLista';
+import Grafico from '../components/Grafico'
 import MaskInput from 'react-native-mask-input'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -24,7 +25,8 @@ const initialState = {
   horaEntrada: '',
   maximoVagas: 0,
   numVagasAtual: 0,
-  showNumeroVagas: false
+  showNumeroVagas: false,
+  showGrafico: false,
 
 }
 
@@ -152,7 +154,7 @@ export default class App extends Component {
           <TouchableOpacity onPress={() => this.setState({ showNumeroVagas: true })}>
             <Text style={{ fontSize: 20, fontWeight: 'bold', color: commonStyles.colors.secondary, marginLeft: 5 }}>{this.state.numVagasAtual}/{this.state.maximoVagas}</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={async () => this.setState({ showRelatorio: true })}>
+          <TouchableOpacity onPress={async () => this.setState({ showGrafico: true })}>
             <Icon name={'chart-box'} size={30} color={commonStyles.colors.secondary} />
           </TouchableOpacity>
           <TouchableOpacity onPress={async () => this.setState({ showRelatorio: true })}>
@@ -198,6 +200,7 @@ export default class App extends Component {
           </View>
           <SaidaCarro onCancel={() => this.setState({ showEntrada: false })} isVisible={this.state.showEntrada} placa={this.state.placaSaida} horaEntrada={this.state.horaSaida} minutoEntrada={this.state.minutoSaida} saidaVaga={this.saidaVaga} />
           <NumeroVagas onCancel={() => this.setState({ showNumeroVagas: false })} isVisible={this.state.showNumeroVagas} setMaxVagas={this.setMaxVagas} />
+          <Grafico onCancel={() => this.setState({ showGrafico: false })} isVisible={this.state.showGrafico} />
           <Relatorio onCancel={() => this.setState({ showRelatorio: false })} isVisible={this.state.showRelatorio} />
         </View>
 

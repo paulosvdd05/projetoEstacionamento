@@ -17,62 +17,13 @@ const windowHeight = Dimensions.get('window').height;
 
 const horaMask = [/\d/, /\d/, ':', /\d/, /\d/]
 
-export default class Relatorio extends Component {
+export default class Grafico extends Component {
 
     state = {
         ...initialState
     }
 
-    renderItem = ({ item, index }) => {
-        return <RelatorioLista tipo={'relatorio'} delete={this.delete} {...item} index={index} />
-    }
-
-    storeData = async (value, key) => {
-        try {
-            const jsonValue = JSON.stringify(value);
-            await AsyncStorage.setItem(key, jsonValue);
-        } catch (e) {
-            // saving error
-        }
-    };
-
-    getData = async (key) => {
-        try {
-            const jsonValue = await AsyncStorage.getItem(key);
-            return jsonValue != null ? JSON.parse(jsonValue) : null;
-        } catch (e) {
-            // error reading value
-        }
-    };
-
-    onShow = async () => {
-        const relatorio = await this.getData('relatorio')
-        if (relatorio !== null) {
-            this.setState({ relatorio: relatorio })
-        }
-    }
-
-    delete = async (placa) => {
-        Alert.alert(
-            'Excluir',
-            `Deseja excluir o carro ${placa}?`,
-            [
-                {
-                    text: 'Não',
-                    onPress: () => console.log('Cancel Pressed'),
-                    style: 'cancel'
-                },
-                {
-                    text: 'Sim', onPress: async () => {
-                        const relatorio = this.state.relatorio.filter(item => item.placa !== placa)
-                        this.setState({ relatorio: relatorio })
-                        await this.storeData(relatorio, 'relatorio')
-                    }
-                }
-            ],
-            { cancelable: false }
-        );
-    }
+   
 
 
 
@@ -83,7 +34,9 @@ export default class Relatorio extends Component {
                     <View style={styles.background}></View>
                 </TouchableWithoutFeedback>
                 <View style={styles.container}>
-                    
+                <View style={styles.navbar}>
+                        <Text style={styles.navbarText}>Gráfico</Text>
+                    </View>
                 </View>
 
                 <TouchableWithoutFeedback onPress={this.props.onCancel}>
