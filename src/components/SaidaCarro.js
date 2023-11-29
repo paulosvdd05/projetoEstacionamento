@@ -71,7 +71,7 @@ export default class SaidaCarro extends Component {
                             />
                         </View>
                         <View style={{ marginTop: 20 }}>
-                            <Text>Total: R${this.state.total}</Text>
+                            <Text>Total: R${new Intl.NumberFormat('pt-BR', { currency: 'BRL', minimumFractionDigits: 2 }).format(this.state.total)}</Text>
                         </View>
                         <View>
                             <TouchableNativeFeedback onPress={() => this.props.saidaVaga(this.props.placa, this.state.total, this.state.hora, `${this.props.horaEntrada}:${this.props.minutoEntrada}`)}>

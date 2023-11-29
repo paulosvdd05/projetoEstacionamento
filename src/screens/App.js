@@ -27,6 +27,12 @@ const initialState = {
   numVagasAtual: 0,
   showNumeroVagas: false,
   showGrafico: false,
+  todasEntrada: [],
+  modaHoraEntrada: 0,
+  utlimaContagemModa: 0,
+  todasSaida: [],
+  modaHoraSaida: 0,
+  utlimaContagemModaSaida: 0
 
 }
 
@@ -46,6 +52,11 @@ export default class App extends Component {
     const carros = await this.getData('vagas')
     const relatorio = await this.getData('relatorio')
     const maximoVagas = await this.getData('maximoVagas')
+    const todasEntrada = await this.getData('todasEntrada')
+    const modaHoraEntrada = await this.getData('modaHoraEntrada')
+    const utlimaContagemModa = await this.getData('utlimaContagemModa')
+    const modaHoraSaida = await this.getData('modaHoraSaida')
+    const utlimaContagemModaSaida = await this.getData('utlimaContagemModaSaida')
     if (carros !== null) {
       this.setState({ carros: carros })
     }
@@ -54,6 +65,21 @@ export default class App extends Component {
     }
     if (maximoVagas !== null) {
       this.setState({ maximoVagas: maximoVagas })
+    }
+    if (todasEntrada !== null) {
+      this.setState({ todasEntrada: todasEntrada })
+    }
+    if (modaHoraEntrada !== null) {
+      this.setState({ modaHoraEntrada: modaHoraEntrada })
+    }
+    if (utlimaContagemModa !== null) {
+      this.setState({ utlimaContagemModa: utlimaContagemModa })
+    }
+    if (modaHoraSaida !== null) {
+      this.setState({ modaHoraSaida: modaHoraSaida })
+    }
+    if (utlimaContagemModaSaida !== null) {
+      this.setState({ utlimaContagemModaSaida: utlimaContagemModaSaida })
     }
 
     this.state.carros != '' ? this.setState({ numVagasAtual: this.state.carros.length }) : null
@@ -64,9 +90,23 @@ export default class App extends Component {
     if (this.state.placa != '' || this.state.horaEntrada != '') {
       if (this.state.numVagasAtual < this.state.maximoVagas) {
         if (this.state.carros.filter(carro => carro.placa == this.state.placa).length <= 0) {
-          this.setState({ carros: [...this.state.carros, { placa: this.state.placa, horaEntrada: this.state.horaEntrada }] }, () => {
+          this.setState({ carros: [...this.state.carros, { placa: this.state.placa, horaEntrada: this.state.horaEntrada }], todasEntrada: [...this.state.todasEntrada, { hora: this.state.horaEntrada }] }, () => {
             this.setState({ placa: '', horaEntrada: '', numVagasAtual: this.state.carros.length }, async () => {
+              //logica de ver qual horario teve mais entrada
+              this.state.todasEntrada.forEach(i => {
+                let count = 0
+                this.state.todasEntrada.forEach(j => i.hora == j.hora ? count++ : null)
+                if (count => this.state.utlimaContagemModa) {
+                  this.setState({ utlimaContagemModa: count, modaHoraEntrada: i.hora }, async () => {
+                    await this.storeData(this.state.modaHoraEntrada, 'modaHoraEntrada')
+                    await this.storeData(this.state.utlimaContagemModa, 'utlimaContagemModa')
+                  })
+                }
+
+
+              });
               await this.storeData(this.state.carros, 'vagas')
+              await this.storeData(this.state.todasEntrada, 'todasEntrada')
             })
           })
 
@@ -87,6 +127,7 @@ export default class App extends Component {
   delete = (placa, horaEntrada, minutoEntrada) => {
     this.setState({ placaSaida: placa, horaSaida: horaEntrada, minutoSaida: minutoEntrada }, () => this.setState({ showEntrada: true }, async () => {
       await this.storeData(this.state.carros, 'vagas')
+
     }))
     // Alert.alert('Excluir', 'Deseja dar saída ao carro?', [
     //   {
@@ -123,8 +164,20 @@ export default class App extends Component {
       {
         text: 'Sim',
         onPress: () => this.setState({ carros: this.state.carros.filter(carro => carro.placa !== placa) }, () => {
-          this.setState({ showEntrada: false, numVagasAtual: this.state.carros.length, relatorio: [...this.state.relatorio, { placa: placa, horaEntrada: horaEntrada, horaSaida: horaSaida, total: total }] },
+          this.setState({ showEntrada: false, todasSaida: [...this.state.todasSaida, {hora: `${horaSaida}`}], numVagasAtual: this.state.carros.length, relatorio: [...this.state.relatorio, { placa: placa, horaEntrada: horaEntrada, horaSaida: horaSaida, total: total }] },
             async () => {
+              this.state.todasSaida.forEach(i => {
+                let count = 0
+                this.state.todasSaida.forEach(j => i.hora == j.hora ? count++ : null)
+                if (count => this.state.utlimaContagemModaSaida) {
+                  this.setState({ utlimaContagemModaSaida: count, modaHoraSaida: i.hora }, async () => {
+                    await this.storeData(this.state.modaHoraSaida, 'modaHoraSaida')
+                    await this.storeData(this.state.utlimaContagemModaSaida, 'utlimaContagemModaSaida')
+                  })
+                }
+
+
+              });
               await this.storeData(this.state.relatorio, 'relatorio')
               await this.storeData(this.state.carros, 'vagas')
 
@@ -200,7 +253,7 @@ export default class App extends Component {
           </View>
           <SaidaCarro onCancel={() => this.setState({ showEntrada: false })} isVisible={this.state.showEntrada} placa={this.state.placaSaida} horaEntrada={this.state.horaSaida} minutoEntrada={this.state.minutoSaida} saidaVaga={this.saidaVaga} />
           <NumeroVagas onCancel={() => this.setState({ showNumeroVagas: false })} isVisible={this.state.showNumeroVagas} setMaxVagas={this.setMaxVagas} />
-          <Grafico onCancel={() => this.setState({ showGrafico: false })} isVisible={this.state.showGrafico} />
+          <Grafico onCancel={() => this.setState({ showGrafico: false })} isVisible={this.state.showGrafico} horaEntrada={this.state.modaHoraEntrada} horaSaida = {this.state.modaHoraSaida} />
           <Relatorio onCancel={() => this.setState({ showRelatorio: false })} isVisible={this.state.showRelatorio} />
         </View>
 
