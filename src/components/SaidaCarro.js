@@ -30,9 +30,7 @@ export default class SaidaCarro extends Component {
         const minutoSaida = this.state.hora.split(":")[1] == undefined ? '00' : this.state.hora.split(":")[1]
         const horaEntrada = this.props.horaEntrada
         const minutoEntrada = this.props.minutoEntrada
-        const horaMaior = horaSaida > horaEntrada ? horaSaida : horaEntrada
-        const horaMenor = horaSaida < horaEntrada ? horaSaida : horaEntrada
-        const diferencaHora = horaMaior - horaMenor
+        let diferencaHora = horaSaida - horaEntrada
         const diferencaMinuto = minutoSaida - minutoEntrada
         console.log(
             horaSaida,
@@ -40,11 +38,19 @@ export default class SaidaCarro extends Component {
             horaEntrada,
             minutoEntrada,
         );
-        if (diferencaHora !== 0 && horaSaida !== 0 && diferencaHora > 0) {
-           let horaEmMinuto = diferencaHora * 60
-           let minutoTotal = horaEmMinuto + diferencaMinuto
-        let totalPagar= (minutoTotal/60).toString().split('.')[1] > 0 ? (minutoTotal/60).toString().split('.')[0] * this.state.valorHora + this.state.valorHora : (minutoTotal/60).toString().split('.')[0] * this.state.valorHora
-        this.setState({ total: totalPagar })
+        if (diferencaHora !== 0 && horaSaida !== 0) {
+            if (horaSaida < horaEntrada) {
+                diferencaHora = 24 - parseInt(horaEntrada) + parseInt(horaSaida)
+                let horaEmMinuto = diferencaHora * 60
+                let minutoTotal = horaEmMinuto + diferencaMinuto
+                let totalPagar = (minutoTotal / 60).toString().split('.')[1] > 0 ? (minutoTotal / 60).toString().split('.')[0] * this.state.valorHora + this.state.valorHora : (minutoTotal / 60).toString().split('.')[0] * this.state.valorHora
+                this.setState({ total: totalPagar })
+            } else {
+                let horaEmMinuto = diferencaHora * 60
+                let minutoTotal = horaEmMinuto + diferencaMinuto
+                let totalPagar = (minutoTotal / 60).toString().split('.')[1] > 0 ? (minutoTotal / 60).toString().split('.')[0] * this.state.valorHora + this.state.valorHora : (minutoTotal / 60).toString().split('.')[0] * this.state.valorHora
+                this.setState({ total: totalPagar })
+            }
         } else {
             this.setState({ total: this.state.valorHora })
         }
@@ -54,7 +60,7 @@ export default class SaidaCarro extends Component {
         if (this.state.hora.split(':')[0] != '') {
             if (parseInt(this.state.hora.split(':')[0]) <= 24) {
                 this.props.saidaVaga(this.props.placa, this.state.total, this.state.hora, `${this.props.horaEntrada}:${this.props.minutoEntrada}`)
-            }else{
+            } else {
                 Alert.alert('Erro', 'Hora inválida')
             }
         } else {
@@ -88,11 +94,11 @@ export default class SaidaCarro extends Component {
                             />
                         </View>
                         <View style={{ marginTop: 20 }}>
-                        <TouchableNativeFeedback onPress={this.calculaTotal}>
-                            <View style={{ backgroundColor: "#0f0", borderRadius: 10, padding: 10, marginVertical: 20, alignItems:'center' }}>
-                                <Text style={{color:'#fff', fontWeight:'bold'}}>Calcular</Text>
-                            </View>
-                        </TouchableNativeFeedback>
+                            <TouchableNativeFeedback onPress={this.calculaTotal}>
+                                <View style={{ backgroundColor: "#0f0", borderRadius: 10, padding: 10, marginVertical: 20, alignItems: 'center' }}>
+                                    <Text style={{ color: '#fff', fontWeight: 'bold' }}>Calcular</Text>
+                                </View>
+                            </TouchableNativeFeedback>
                             <Text>Total: R${new Intl.NumberFormat('pt-BR', { currency: 'BRL', minimumFractionDigits: 2 }).format(this.state.total)}</Text>
                         </View>
                         <View>

@@ -87,42 +87,53 @@ export default class App extends Component {
   }
 
   preencherVaga = () => {
-    if (this.state.placa != '' || this.state.horaEntrada != '') {
-      if (this.state.numVagasAtual < this.state.maximoVagas) {
-        if (this.state.carros.filter(carro => carro.placa == this.state.placa).length <= 0) {
-          if(parseInt(this.state.horaEntrada.split(':')[0]) <=24){
-          this.setState({ carros: [...this.state.carros, { placa: this.state.placa, horaEntrada: this.state.horaEntrada }], todasEntrada: [...this.state.todasEntrada, { hora: this.state.horaEntrada }] }, () => {
-            this.setState({ placa: '', horaEntrada: '', numVagasAtual: this.state.carros.length }, async () => {
-              //logica de ver qual horario teve mais entrada
-              this.state.todasEntrada.forEach(i => {
-                let count = 0
-                this.state.todasEntrada.forEach(j => i.hora == j.hora ? count++ : null)
-                if (count => this.state.utlimaContagemModa) {
-                  this.setState({ utlimaContagemModa: count, modaHoraEntrada: i.hora }, async () => {
-                    await this.storeData(this.state.modaHoraEntrada, 'modaHoraEntrada')
-                    await this.storeData(this.state.utlimaContagemModa, 'utlimaContagemModa')
+    function isNumber(n) {
+      return !isNaN(parseFloat(n)) && isFinite(n);
+    }
+    if (this.state.placa.length == 8) {
+      if (isNumber(this.state.placa.split('-')[0]) == false && isNumber(this.state.placa.split('-')[1]) == true) {
+        if (this.state.placa.length) {
+          if (this.state.numVagasAtual < this.state.maximoVagas) {
+            if (this.state.carros.filter(carro => carro.placa == this.state.placa).length <= 0) {
+              if (parseInt(this.state.horaEntrada.split(':')[0]) < 24 && parseInt(this.state.horaEntrada.split(':')[1]) < 60) {
+                this.setState({ carros: [...this.state.carros, { placa: this.state.placa, horaEntrada: this.state.horaEntrada }], todasEntrada: [...this.state.todasEntrada, { hora: this.state.horaEntrada }] }, () => {
+                  this.setState({ placa: '', horaEntrada: '', numVagasAtual: this.state.carros.length }, async () => {
+                    //logica de ver qual horario teve mais entrada
+                    this.state.todasEntrada.forEach(i => {
+                      let count = 0
+                      this.state.todasEntrada.forEach(j => i.hora == j.hora ? count++ : null)
+                      if (count => this.state.utlimaContagemModa) {
+                        this.setState({ utlimaContagemModa: count, modaHoraEntrada: i.hora }, async () => {
+                          await this.storeData(this.state.modaHoraEntrada, 'modaHoraEntrada')
+                          await this.storeData(this.state.utlimaContagemModa, 'utlimaContagemModa')
+                        })
+                      }
+
+
+                    });
+                    await this.storeData(this.state.carros, 'vagas')
+                    await this.storeData(this.state.todasEntrada, 'todasEntrada')
                   })
-                }
+                })
+              } else {
+                Alert.alert('Atenção', 'Hora inválida!')
+              }
 
+            } else {
+              Alert.alert('Atenção', 'Carro já estacionado!')
+            }
 
-              });
-              await this.storeData(this.state.carros, 'vagas')
-              await this.storeData(this.state.todasEntrada, 'todasEntrada')
-            })
-          })
-        }else{
-          Alert.alert('Atenção', 'Hora inválida!')
-        }
-
+          } else {
+            Alert.alert('Atenção', 'Não há vagas disponíveis! Aumente o numero de vagas no canto superior esquerdo do App.')
+          }
         } else {
-          Alert.alert('Atenção', 'Carro já estacionado!')
+          Alert.alert('Atenção', 'Preencha todos os campos!')
         }
-
       } else {
-        Alert.alert('Atenção', 'Não há vagas disponíveis! Aumente o numero de vagas no canto superior esquerdo do App.')
+        Alert.alert('Atenção', 'Preencha a placa com o padrão AAA-0000')
       }
     } else {
-      Alert.alert('Atenção', 'Preencha todos os campos!')
+      Alert.alert('Atenção', 'Preencha a placa por completo')
     }
 
 
@@ -168,7 +179,7 @@ export default class App extends Component {
       {
         text: 'Sim',
         onPress: () => this.setState({ carros: this.state.carros.filter(carro => carro.placa !== placa) }, () => {
-          this.setState({ showEntrada: false, todasSaida: [...this.state.todasSaida, {hora: `${horaSaida}`}], numVagasAtual: this.state.carros.length, relatorio: [...this.state.relatorio, { placa: placa, horaEntrada: horaEntrada, horaSaida: horaSaida, total: total }] },
+          this.setState({ showEntrada: false, todasSaida: [...this.state.todasSaida, { hora: `${horaSaida}` }], numVagasAtual: this.state.carros.length, relatorio: [...this.state.relatorio, { placa: placa, horaEntrada: horaEntrada, horaSaida: horaSaida, total: total }] },
             async () => {
               this.state.todasSaida.forEach(i => {
                 let count = 0
@@ -257,7 +268,7 @@ export default class App extends Component {
           </View>
           <SaidaCarro onCancel={() => this.setState({ showEntrada: false })} isVisible={this.state.showEntrada} placa={this.state.placaSaida} horaEntrada={this.state.horaSaida} minutoEntrada={this.state.minutoSaida} saidaVaga={this.saidaVaga} />
           <NumeroVagas onCancel={() => this.setState({ showNumeroVagas: false })} isVisible={this.state.showNumeroVagas} setMaxVagas={this.setMaxVagas} />
-          <Grafico onCancel={() => this.setState({ showGrafico: false })} isVisible={this.state.showGrafico} horaEntrada={this.state.modaHoraEntrada} horaSaida = {this.state.modaHoraSaida} />
+          <Grafico onCancel={() => this.setState({ showGrafico: false })} isVisible={this.state.showGrafico} horaEntrada={this.state.modaHoraEntrada} horaSaida={this.state.modaHoraSaida} />
           <Relatorio onCancel={() => this.setState({ showRelatorio: false })} isVisible={this.state.showRelatorio} />
         </View>
 
