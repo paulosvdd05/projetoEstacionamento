@@ -10,8 +10,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const initialState = {
     relatorio: [],
-    horaEntrada: '',
-    horaSaida: ''
+    horaEntrada: '0:0',
+    horaSaida: '0:0'
 }
 
 

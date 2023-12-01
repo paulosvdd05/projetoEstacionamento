@@ -28,10 +28,10 @@ const initialState = {
   showNumeroVagas: false,
   showGrafico: false,
   todasEntrada: [],
-  modaHoraEntrada: 0,
+  modaHoraEntrada: '0:0',
   utlimaContagemModa: 0,
   todasSaida: [],
-  modaHoraSaida: 0,
+  modaHoraSaida: '0:0',
   utlimaContagemModaSaida: 0
 
 }
@@ -90,6 +90,7 @@ export default class App extends Component {
     if (this.state.placa != '' || this.state.horaEntrada != '') {
       if (this.state.numVagasAtual < this.state.maximoVagas) {
         if (this.state.carros.filter(carro => carro.placa == this.state.placa).length <= 0) {
+          if(parseInt(this.state.horaEntrada.split(':')[0]) <=24){
           this.setState({ carros: [...this.state.carros, { placa: this.state.placa, horaEntrada: this.state.horaEntrada }], todasEntrada: [...this.state.todasEntrada, { hora: this.state.horaEntrada }] }, () => {
             this.setState({ placa: '', horaEntrada: '', numVagasAtual: this.state.carros.length }, async () => {
               //logica de ver qual horario teve mais entrada
@@ -109,13 +110,16 @@ export default class App extends Component {
               await this.storeData(this.state.todasEntrada, 'todasEntrada')
             })
           })
+        }else{
+          Alert.alert('Atenção', 'Hora inválida!')
+        }
 
         } else {
           Alert.alert('Atenção', 'Carro já estacionado!')
         }
 
       } else {
-        Alert.alert('Atenção', 'Não há vagas disponíveis!')
+        Alert.alert('Atenção', 'Não há vagas disponíveis! Aumente o numero de vagas no canto superior esquerdo do App.')
       }
     } else {
       Alert.alert('Atenção', 'Preencha todos os campos!')

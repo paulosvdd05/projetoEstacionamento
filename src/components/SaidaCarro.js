@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { View, Text, Modal, TouchableWithoutFeedback, StyleSheet, TextInput, TouchableNativeFeedback } from 'react-native'
+import { View, Text, Modal, TouchableWithoutFeedback, StyleSheet, TextInput, TouchableNativeFeedback, Alert } from 'react-native'
 import commonStyles from '../commonStyles'
 import Icon from 'react-native-vector-icons/dist/MaterialCommunityIcons';
 import MaskInput from 'react-native-mask-input'
@@ -25,12 +25,14 @@ export default class SaidaCarro extends Component {
     }
 
     calculaTotal = () => {
-        
+
         const horaSaida = this.state.hora.split(":")[0] == '' ? 0 : this.state.hora.split(":")[0]
         const minutoSaida = this.state.hora.split(":")[1] == undefined ? '00' : this.state.hora.split(":")[1]
         const horaEntrada = this.props.horaEntrada
         const minutoEntrada = this.props.minutoEntrada
-        const diferencaHora = horaSaida - horaEntrada
+        const horaMaior = horaSaida > horaEntrada ? horaSaida : horaEntrada
+        const horaMenor = horaSaida < horaEntrada ? horaSaida : horaEntrada
+        const diferencaHora = horaMaior - horaMenor
         const diferencaMinuto = minutoSaida - minutoEntrada
         console.log(
             horaSaida,
@@ -39,9 +41,24 @@ export default class SaidaCarro extends Component {
             minutoEntrada,
         );
         if (diferencaHora !== 0 && horaSaida !== 0 && diferencaHora > 0) {
-            diferencaMinuto > 0 ? this.setState({ total: (this.state.valorHora * diferencaHora) + 1 }) : this.setState({ total: this.state.valorHora * diferencaHora })
+           let horaEmMinuto = diferencaHora * 60
+           let minutoTotal = horaEmMinuto + diferencaMinuto
+        let totalPagar= (minutoTotal/60).toString().split('.')[1] > 0 ? (minutoTotal/60).toString().split('.')[0] * this.state.valorHora + this.state.valorHora : (minutoTotal/60).toString().split('.')[0] * this.state.valorHora
+        this.setState({ total: totalPagar })
         } else {
             this.setState({ total: this.state.valorHora })
+        }
+    }
+
+    darSaida = () => {
+        if (this.state.hora.split(':')[0] != '') {
+            if (parseInt(this.state.hora.split(':')[0]) <= 24) {
+                this.props.saidaVaga(this.props.placa, this.state.total, this.state.hora, `${this.props.horaEntrada}:${this.props.minutoEntrada}`)
+            }else{
+                Alert.alert('Erro', 'Hora inválida')
+            }
+        } else {
+            Alert.alert('Erro', 'Digite a hora de saída')
         }
     }
 
@@ -64,17 +81,22 @@ export default class SaidaCarro extends Component {
                             <Text style={styles.entradaText}>Hora de Saída:</Text>
                             <MaskInput style={styles.input}
                                 value={this.state.hora}
-                                onChangeText={(masked, unmasked) => this.setState({ hora: masked }, this.calculaTotal)}
+                                onChangeText={(masked, unmasked) => this.setState({ hora: masked })}
                                 placeholder='Digite a hora de saída...'
                                 keyboardType='numeric'
                                 mask={horaMask}
                             />
                         </View>
                         <View style={{ marginTop: 20 }}>
+                        <TouchableNativeFeedback onPress={this.calculaTotal}>
+                            <View style={{ backgroundColor: "#0f0", borderRadius: 10, padding: 10, marginVertical: 20, alignItems:'center' }}>
+                                <Text style={{color:'#fff', fontWeight:'bold'}}>Calcular</Text>
+                            </View>
+                        </TouchableNativeFeedback>
                             <Text>Total: R${new Intl.NumberFormat('pt-BR', { currency: 'BRL', minimumFractionDigits: 2 }).format(this.state.total)}</Text>
                         </View>
                         <View>
-                            <TouchableNativeFeedback onPress={() => this.props.saidaVaga(this.props.placa, this.state.total, this.state.hora, `${this.props.horaEntrada}:${this.props.minutoEntrada}`)}>
+                            <TouchableNativeFeedback onPress={this.darSaida}>
                                 <View style={{ backgroundColor: "#f00", borderRadius: 10, padding: 10, marginVertical: 20 }}>
                                     <Icon name='exit-to-app' size={22} color='#fff' />
                                 </View>
