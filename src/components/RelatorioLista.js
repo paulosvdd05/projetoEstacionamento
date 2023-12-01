@@ -27,7 +27,7 @@ export default props => {
                 {renderizarLinha(('R$' + new Intl.NumberFormat('pt-BR', { currency: 'BRL', minimumFractionDigits: 2 }).format(props.total)), 'Total')}
 
                 <View style={{alignItems:'center', marginVertical:10}}>
-                    <TouchableOpacity onPress={() => props.delete(props.placa, horaEntrada, minutoEntrada)}>
+                    <TouchableOpacity onPress={() => props.delete(props.placa)}>
                         <View style={{ paddingHorizontal: 5, paddingVertical: 10, borderRadius: 5, backgroundColor: '#f00', justifyContent:'center', alignItems:'center', width:100}}>
                             {props.tipo != 'relatorio' ? <Icon name='exit-to-app' size={22} color='#fff' /> : <Icon name='delete' size={22} color='#fff' />}
                         </View>
